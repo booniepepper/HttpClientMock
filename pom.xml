@@ -2,14 +2,14 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>com.xebia</groupId>
+    <groupId>so-dang-cool</groupId>
     <artifactId>http-client-mock</artifactId>
-    <version>1.0.0</version>
+    <version>2.0.0</version>
     <packaging>jar</packaging>
 
     <name>${project.groupId}:${project.artifactId}</name>
     <description>Library for mocking JDK 11 HttpClient.</description>
-    <url>https://github.com/xebia/HttpClientMock</url>
+    <url>https://github.com/so-dang-cool/HttpClientMock</url>
     <licenses>
         <license>
             <name>MIT License</name>
@@ -25,11 +25,15 @@
             <name>Radosław Skupnik</name>
             <email>rskupnik@pgs-soft.com</email>
         </developer>
+        <developer>
+            <name>J.R. Hill</name>
+            <email>justin@so.dang.cool</email>
+        </developer>
     </developers>
     <scm>
-        <connection>scm:git:git://github.com/xebia/HttpClientMock.git</connection>
-        <developerConnection>scm:git:ssh://github.com:xebia/HttpClientMock.git</developerConnection>
-        <url>http://github.com/xebia/HttpClientMock/tree/master</url>
+        <connection>scm:git:git://github.com/so-dang-cool/HttpClientMock.git</connection>
+        <developerConnection>scm:git:ssh://github.com:so-dang-cool/HttpClientMock.git</developerConnection>
+        <url>http://github.com/so-dang-cool/HttpClientMock/tree/master</url>
     </scm>
 
 
@@ -53,13 +57,14 @@
             <scope>test</scope>
         </dependency>
         <dependency>
+            <!-- TODO: Make optional -->
             <groupId>org.hamcrest</groupId>
             <artifactId>hamcrest-all</artifactId>
             <version>${hamcrest.version}</version>
         </dependency>
     </dependencies>
 
-
+    <!--
     <distributionManagement>
         <snapshotRepository>
             <id>ossrh</id>
@@ -70,6 +75,7 @@
             <url>https://oss.sonatype.org/service/local/staging/deploy/maven2/</url>
         </repository>
     </distributionManagement>
+    -->
 
     <profiles>
         <profile>
@@ -147,7 +153,7 @@
                 <configuration>
                     <archive>
                         <manifestEntries>
-                            <Automatic-Module-Name>com.pgssoft.httpclient</Automatic-Module-Name>
+                            <Automatic-Module-Name>so.dang.cool.httpclient</Automatic-Module-Name>
                         </manifestEntries>
                     </archive>
                 </configuration>

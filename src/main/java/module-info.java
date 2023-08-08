@@ -1,6 +1,6 @@
-module com.pgssoft.httpclient {
+module so.dang.cool.httpclient {
     requires java.net.http;
-    requires hamcrest.all;
+    requires hamcrest.all; // TODO: Make optional
 
-    exports com.pgssoft.httpclient;
+    exports so.dang.cool.httpclient;
 }

@@ -18,7 +18,7 @@ HttpClientMock is a library for mocking [Java HttpClient](https://docs.oracle.co
 HttpClientMock is available in Maven Central Repository.
 ```
 <dependency>
-    <groupId>com.xebia</groupId>
+    <groupId>so-dang-cool</groupId>
     <artifactId>http-client-mock</artifactId>
     <version>1.0.0</version>
 </dependency>
@@ -269,11 +269,9 @@ The project is available as open source under the terms of the [MIT License](htt
 
 ## About
 
-The project maintained by [Xebia](https://www.xebia.com/).
+Maintenance and development is now lead by [J.R. Hill](https://so.dang.cool).
 
-See our other [open-source projects](https://github.com/xebia) or [contact us](https://xebia.com/am/about-us/contact/) to develop your product.
-
-## Follow us
-
-[![Twitter Follow](https://img.shields.io/twitter/follow/xebia.svg?style=social&label=Follow)](https://twitter.com/xebia)
-
+The project was originally created in 2019 by Paweł Adamski and Radosław
+Skupnik, and licensed to a Polish consultancy called PGS Software that no
+longer exists. It was forked in 2023 because the project was still deemed
+useful even though the original project was [abandoned](https://github.com/PGSSoft/HttpClientMock/issues/3).
