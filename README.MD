@@ -1,6 +1,7 @@
 # HttpClientMock
 
-HttpClientMock is a library for mocking [Java HttpClient](https://docs.oracle.com/en/java/javase/11/docs/api/java.net.http/java/net/http/HttpClient.html). It has an intuitive fluent API for defining client behaviour and verifing number of made requests.
+HttpClientMock is a library for mocking [Java HttpClient](https://docs.oracle.com/en/java/javase/11/docs/api/java.net.http/java/net/http/HttpClient.html).
+Its goal is to provide an intuitive API for defining and verifying client behaviour.
 
 * [Installation](#installation)
 * [Requirements](#requirements)
@@ -11,27 +12,50 @@ HttpClientMock is a library for mocking [Java HttpClient](https://docs.oracle.co
 * [Examples](#examples)
 * [License](#license)
 * [About](#about)
-* [Follow us](#follow-us)
+
 
 ## Installation
 
-HttpClientMock is available in Maven Central Repository.
+HttpClientMock 2.0.0 is planned to be available in Maven Central Repository before September 2023.
+
+#### Bld
+
+```
+scope(test).include(dependency("so.dang.cool", "http-client-mock", version(2, 0, 0)));
+```
+
+#### Maven
+
 ```
 <dependency>
-    <groupId>so-dang-cool</groupId>
+    <groupId>so.dang.cool</groupId>
     <artifactId>http-client-mock</artifactId>
-    <version>1.0.0</version>
+    <version>2.0.0</version>
+    <scope>test</scope>
 </dependency>
 ```
 
+#### Gradle
+
+```
+dependencies {
+    testImplementation("so.dang.cool:http-client-mock:2.0.0")
+}
+```
+
+
 ## Requirements
 
-* Java 11
+* Java 11 or higher
+
 
 ## Usage
 
 #### Record
-Working with HttpClientMock starts with defining client behaviour. Before code under tests starts HttpClientMock must know how to respond to every request.
+Define client behavior to begin working with HttpClientMock. Before code under
+test starts, HttpClientMock must be told how to respond to each request. It'll
+record all traffic it receives.
+
 ```
 HttpClientMock httpClientMock = new HttpClientMock();
 httpClientMock.onGet("http://localhost/login")
@@ -41,7 +65,7 @@ httpClientMock.onPost("http://localhost/login").doReturnStatus(501);
 ```
 
 #### Replay
-Code under test starts and uses HttpClientMock with defined behaviour.
+Code under test starts and uses HttpClientMock with its defined behaviour.
 ```
 var get = HttpRequest.newBuilder(URI.create("http://localhost/login?user:john")).GET().build();
 var post = HttpRequest.newBuilder(URI.create("http://localhost/login")).POST(noBody()).build();
@@ -50,17 +74,20 @@ httpClient.send(post, ofString()); // returns response with status 501
 ```
 
 #### Verify
-When code under test finishes, HttpClientMock allows to check number of made request. It is possible to use the same set of conditions as for defining mock behaviour.
+When code under test finishes, HttpClientMock allows to verify the exact number
+of requests made. (Or not!) The fluent interface for verification resembles the
+interface for defining mock behaviour.
 ```
 httpClientMock.verify().get("http://localhost/login").withParameter("user","john").called()
 httpClientMock.verify().post("http://localhost/login").notCalled()
 ```
 
-
 ## Request matching
 
-### HTTP method
-HttpClientMock supports all Http methods.
+### HTTP methods
+
+HttpClientMock supports all HTTP methods.
+
 ```
 httpClientMock.onGet().doReturn("get");
 httpClientMock.onPost().doReturn("post");
@@ -69,12 +96,17 @@ httpClientMock.onDelete().doReturn("delete");
 httpClientMock.onOptions().doReturn("options");
 httpClientMock.onHead().doReturn("head");
 ```
+
 ### URL
+
 Every `onGet()`, `onPost()`, .... method accept URL. It is possible to write:
+
 ```
 httpClientMock.onGet("http://localhost/login?user=john").doReturnStatus(200);
 ```
-which is equal to
+
+...which is equal to:
+
 ```
 httpClientMock.onGet()
   .withHost("httt://locahost")
@@ -83,7 +115,9 @@ httpClientMock.onGet()
   .doReturnStatus(200);
 ```
 
-It is possible to define default host using HttpClientMock constructor, so later methods can accept relative URL-s.
+It's possible to define a default host using HttpClientMock's constructor so
+later methods can accept relative URLs.
+
 ```
 HttpClientMock httpClientMock = new HttpClientMock("http://localhost");
 httpClientMock.onGet("/login").doReturn("ok");
@@ -92,8 +126,10 @@ httpClientMock.onPost("/edit?user=john").doReturnStatus(200);
 httpClientMock.onGet("http://www.google.com").doReturn("Google") // Absolute paths still work.
 ```
 
-### Host, path, parameters, reference conditions
-It is possible to define each part of url separately.
+### Host, path, parameters, and reference conditions
+
+Each part of a URL can be defined separately.
+
 ```
 httpClientMock.onGet()
   .withHost("httt://locahost")
@@ -103,21 +139,24 @@ httpClientMock.onGet()
   .doReturnStatus(200);
 ```
 
-### Header condition
+### Header conditions
+
 ```
 httpClientMock.onGet("http://localhost/login")
   .withHeader("tracking","123")
   .doReturn("ok");
 ```
 
-### Body condition
+### Body conditions
+
 ```
 httpClientMock.onGet("http://localhost/login")
   .withBody("tracking",containsString(123))
   .doReturn("ok");
 ```
 
-### Custom condition
+### Custom conditions
+
 ```
 Condition fooCondition = request -> request.getUri().contains("foo");
 httpClientMock.onGet("http://localhost/foo/bar")
@@ -126,7 +165,10 @@ httpClientMock.onGet("http://localhost/foo/bar")
 ```
 
 ### Matchers
-Every condition method accepts [Hamcrest Matcher](https://github.com/hamcrest/JavaHamcrest) which allows to define custom conditions on requests.
+
+Every condition method accepts [Hamcrest Matcher](https://github.com/hamcrest/JavaHamcrest)
+which allows the definition of custom conditions on requests.
+
 ```
 httpClientMock.onGet("http://localhost")
   .withPath(containsString("login"))
@@ -134,31 +176,50 @@ httpClientMock.onGet("http://localhost")
   .reference(not(equalTo("edit")));
 ```
 
-### Multiple matching rules
-If request matches more then one rule, then last defined one is used.
+_Note: To prevent unnecessary dependencies for those that don't need or want
+Hamcrest, this will be changed to an optional dependency in a future version of
+HttpClientMock. It will continue to be supported, though._
 
-### None rule matche
-If request doesn't matche any rule, HttpClientMock return response with status 404.
+### Multiple matching rules
+
+If a request matches more then one rule, the request will be routed to the rule
+that was defined most recently.
+
+### No rule matches
+
+If request doesn't match any rule, HttpClientMock returns a response with a 404
+status code.
+
 
 ## Define response
 
 ### Response
-Response with provided body and status 200.
+
+Response with explicit body and implicit 200 status code.
+
 ```
 httpClientMock.onGet("http://localhost").doReturn("my response")
 ```
+
 ### Status
-Response with empty body and provided status
+
+Response with explicit status code and an implicit empty body.
+
 ```
 httpClientMock.onGet("http://localhost").doReturnStatus(300)
 httpClientMock.onGet("http://localhost").doReturn("Overloaded").withStatus("500");
 ```
+
 ### Exception
-Instead of returning response it throws defined exception.
+
+Instead of returning a response, you can also throw an exception.
+
 ```
 httpClientMock.onGet("http://localhost").doThrowException(new IOException());
 ```
-### Custom action
+
+### Custom actions
+
 ```
 Action echo r -> {
   HttpEntity entity = ((HttpEntityEnclosingRequestBase) r.getHttpRequest()).getEntity();
@@ -168,29 +229,41 @@ Action echo r -> {
 };
 httpClientMock.onGet("http://localhost").doAction(echo);
 ```
-### Response header
+
+### Response headers
+
 ```
 httpClientMock.onPost("/login").doReturn("foo").withHeader("tracking", "123")
 ```
+
 ### Response status
+
 ```
 httpClientMock.onPost("/login?user=bar").doReturn("Wrong user").withStatus(403)
 ```
 
 ### JSON
-Response with provided body, status 200 and content type "application/json"
+
+Response with explicit body, content type "application/json", and 200 status code.
+
 ```
 httpClientMock.onPost("/login").doReturnJSON("{foo:1}");
 ```
 
 ### XML
-Response with provided body, status 200 and content type "application/xml"
+
+Response with explicit body, content type "application/xml", and 200 status
+code.
+
 ```
 httpClientMock.onPost("/login").doReturnXML("<foo>bar</foo>");
 ```
 
 ### Multiple actions
-It is possible to add multiple actions to one rule. Every call will use next action until last is reached.
+
+It's possible to add multiple actions to one rule. Every call will use next
+action until last is reached.
+
 ```
 httpClientMock.onPut("/addUser")
   .doReturn("ok");
@@ -204,7 +277,10 @@ httpClientMock.send(req, ofString()); //returns status 500
 
 
 ## Verification
-HttpClientMock allows to check how many calls were made. Verification supports the same set of conditions us rule defining.
+
+You can check how many calls were made to HttpClientMock. Verification follows
+a similar fluent interface as rule definition.
+
 ```
 httpClientMock.verify().get("http://localhost").called();
 
@@ -219,10 +295,13 @@ httpClientMock.verify().get("http://localhost/login")
 httpClientMock.verify().delete().notCalled();
 
 httpClientMock.verify().get().called(greaterThanOrEqualTo(1));
-
 ```
+
+
 # Examples
+
 ## Example 1
+
 ```
 // DEFINE BEHAVIOUR
 HttpClientMock httpClientMock = new HttpClientMock("http://localhost:8080");
@@ -245,6 +324,7 @@ httpClientMock.verify().delete().notCalled();
 
 
 ## Example 2
+
 ```
 // DEFINE BEHAVIOUR
 HttpClientMock httpClientMock = new HttpClientMock();
